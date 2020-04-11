@@ -86,4 +86,11 @@ bot.onText(/\/quote (.*)/, (msg, match) => {
 
 });
 
+bot.onText(/\/covid (.*)/, (msg, match) => {
+	let chatId = msg.chat.id;
+	let country = match[1];
+	bot.sendPhoto(chatId,`https://covid19.mathdro.id/api/countries/${country}/og`);
+
+});
+
 bot.on("polling_error", (err) => console.log(err));
