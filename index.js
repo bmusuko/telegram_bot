@@ -36,12 +36,12 @@ bot.onText(/\/echo (.*)/, (msg, match) => {
 bot.onText(/\/random/, (msg, match) => {
 	console.log('hit')
 	let chatId = msg.chat.id;
+	let seed = Math.ceil(Math.random()*100000)
 	console.log(msg);
 	// axios.get('https://picsum.photos//500/500.jpg/?blur=3'){
 		
 	// }
-	bot.sendPhoto(chatId,`https://picsum.photos//500/500.jpg/?blur=3`); 
-
+	bot.sendPhoto(chatId,`https://picsum.photos//500/500.jpg/?blur=3&random_seed=${seed}`); 
 });
 
 
