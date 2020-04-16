@@ -104,3 +104,6 @@ dist
 .tern-port
 package-lock.json
 images/
+j.json
+deploy.sh
+feature_todo.json

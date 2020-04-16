@@ -3,6 +3,7 @@ require('dotenv').config();
 const token = process.env.Telegram_token;
 const bot = new TelegramBot(token, {polling: true});
 const axios = require('axios');
+const fs = require('fs');
 
 
 bot.onText(/\/spam (.*)/, (msg, match) => {
@@ -47,11 +48,9 @@ bot.onText(/\/random/, (msg, match) => {
 
 bot.onText(/\/jennie/, (msg, match) => {
 	let chatId = msg.chat.id;
-	console.log(msg);
-	// axios.get('https://picsum.photos//500/500.jpg/?blur=3'){
-		
-	// }
-	bot.sendPhoto(chatId,`./images/jennie/f01b6074d3b3abb74e5d8e549b92d1bb.jpg`); 
+	let obj = JSON.parse(fs.readFileSync('j.json', 'utf8'));
+	let photo = obj['file'][Math.floor((Math.random()*obj['file'].length))]
+	bot.sendPhoto(chatId,`./images/jennie/${photo}`); 
 
 });
 
@@ -89,8 +88,8 @@ bot.onText(/\/quote (.*)/, (msg, match) => {
 bot.onText(/\/covid (.*)/, (msg, match) => {
 	let chatId = msg.chat.id;
 	let country = match[1];
-	bot.sendPhoto(chatId,`https://covid19.mathdro.id/api/countries/${country}/og`);
-
+	let seed = Math.ceil(Math.random()*100000)
+	bot.sendPhoto(chatId,`https://covid19.mathdro.id/api/countries/${country}/og?random_seed=${seed}`);
 });
 
 bot.on("polling_error", (err) => console.log(err));
