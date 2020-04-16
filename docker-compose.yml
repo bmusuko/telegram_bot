@@ -1,0 +1,9 @@
+version: "3"
+services:
+  tyur_bot:
+    container_name: tyur_bot
+    image: bmusuko/tyur_bot:latest
+    restart: always
+    environment:
+        - Telegram_token=${Telegram_token}
+
