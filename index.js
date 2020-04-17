@@ -5,6 +5,19 @@ const bot = new TelegramBot(token, {polling: true});
 const axios = require('axios');
 const fs = require('fs');
 
+bot.onText(/\/help/, (msg, match) => {
+	const chatId = msg.chat.id;
+	const help= [
+		'- /echo [msg] - echo your message',
+		'- /spam [msg] [count] - spam your message count times',
+		'- /random - get random image',
+		'- /quote [msg] - quote your message with picture',	
+		'- /covid [country] - get summary covid in that country',
+		'- /jennie - get random jennie picture from pinterest'
+	]
+	bot.sendMessage(chatId,help.join('\n')); 
+});
+
 
 bot.onText(/\/spam (.*)/, (msg, match) => {
 	console.log('hit')
