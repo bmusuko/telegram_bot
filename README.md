@@ -17,3 +17,4 @@
 - /quote [msg] - quote your message with picture
 - /covid [country] - get summary covid in that country
 - /speak [msg] - send audio file with your message
+- /speaklist - send list of audio code country

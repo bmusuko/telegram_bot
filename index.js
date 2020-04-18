@@ -1,10 +1,9 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.Telegram_token;
 const bot = new TelegramBot(token, {polling: true});
-const axios = require('axios');
+// const axios = require('axios');
 const fs = require('fs');
 const txtomp3 = require("text-to-mp3");
-const randomstring = require("randomstring");
 
 require('dotenv').config();
 
@@ -16,7 +15,9 @@ bot.onText(/\/help/, (msg, match) => {
 		'- /random - get random image',
 		'- /quote [msg] - quote your message with picture',	
 		'- /covid [country] - get summary covid in that country',
-		'- /jennie - get random jennie picture from pinterest'
+		'- /jennie - get random jennie picture from pinterest',
+		'- /speak [msg] [-XX] - send audio file with your message',
+		'- /speaklist - send list of audio code country'
 	]
 	bot.sendMessage(chatId,help.join('\n')); 
 });
@@ -109,16 +110,22 @@ bot.onText(/\/covid (.*)/, (msg, match) => {
 });
 
 bot.onText(/\/speak (.*)/, (msg, match) => {
+	// argument -XX , check /speakList to get full list
 	let chatId = msg.chat.id;
 	let resp = match[1];
-	let filename = './assets/' + randomstring.generate({
-		length: 5,
-		charset: 'alphanumeric'
-	}) + '.mp3';
-	const options = {
-		//the property tl of the object provided must be a string and follow the 2 digit iso short code used by the Google Translate API
-		tl: 'id'
+
+	let code = 'id'
+
+	let hypen = resp.lastIndexOf('-')
+	if(hypen !== -1){
+		code = resp.substring(hypen+1,hypen+3)
+		resp = resp.substring(0,hypen)
 	}
+	console.log(code)
+	console.log(resp)
+
+	txtomp3.attributes.tl = code
+
 	const fileOptions = {
 		// Explicitly specify the MIME type.
 		contentType: 'audio/mp3',
@@ -128,6 +135,11 @@ bot.onText(/\/speak (.*)/, (msg, match) => {
 		bot.sendVoice(chatId,binaryStream,{},fileOptions);
 
 	})
+});
+
+bot.onText(/\/speaklist/, (msg, match) => {
+	let chatId = msg.chat.id;
+	bot.sendMessage(chatId,`i can't give you full list, because is too long.\n go to https://www.labnol.org/code/19899-google-translate-languages#google-translate-languages to see full list`);
 });
 
 bot.on("polling_error", (err) => console.log(err));
