@@ -26,6 +26,8 @@
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
     "node-telegram-bot-api": "^0.40.0",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "randomstring": "^1.1.5",
+    "text-to-mp3": "^1.0.4"
   }
 }

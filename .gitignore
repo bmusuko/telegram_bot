@@ -106,4 +106,6 @@ package-lock.json
 images/
 j.json
 deploy.sh
-todo.json
+todo.md
+flush.sh
+

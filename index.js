@@ -1,9 +1,12 @@
 const TelegramBot = require('node-telegram-bot-api');
-require('dotenv').config();
 const token = process.env.Telegram_token;
 const bot = new TelegramBot(token, {polling: true});
 const axios = require('axios');
 const fs = require('fs');
+const txtomp3 = require("text-to-mp3");
+const randomstring = require("randomstring");
+
+require('dotenv').config();
 
 bot.onText(/\/help/, (msg, match) => {
 	const chatId = msg.chat.id;
@@ -103,6 +106,28 @@ bot.onText(/\/covid (.*)/, (msg, match) => {
 	let country = match[1];
 	let seed = Math.ceil(Math.random()*100000)
 	bot.sendPhoto(chatId,`https://covid19.mathdro.id/api/countries/${country}/og?random_seed=${seed}`);
+});
+
+bot.onText(/\/speak (.*)/, (msg, match) => {
+	let chatId = msg.chat.id;
+	let resp = match[1];
+	let filename = './assets/' + randomstring.generate({
+		length: 5,
+		charset: 'alphanumeric'
+	}) + '.mp3';
+	const options = {
+		//the property tl of the object provided must be a string and follow the 2 digit iso short code used by the Google Translate API
+		tl: 'id'
+	}
+	const fileOptions = {
+		// Explicitly specify the MIME type.
+		contentType: 'audio/mp3',
+	  };
+
+	txtomp3.getMp3(resp).then(function(binaryStream){
+		bot.sendVoice(chatId,binaryStream,{},fileOptions);
+
+	})
 });
 
 bot.on("polling_error", (err) => console.log(err));
