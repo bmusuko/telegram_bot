@@ -149,6 +149,7 @@ bot.onText(/\/ig (.*)/, (msg, match) => {
   const chatId = msg.chat.id;
   const username = match[1];
   const seed = Math.ceil(Math.random() * 100000);
+  console.log(username);
   axios.get(`https://www.instagram.com/${username}/?__a=1&seed=${seed}`)
   .then((result)=>{
     const userID = result.data.graphql.user.id
@@ -158,17 +159,10 @@ bot.onText(/\/ig (.*)/, (msg, match) => {
       const idx = Math.floor(Math.random() * result.data.data.user.edge_owner_to_timeline_media.edges.length);
       const data = result.data.data.user.edge_owner_to_timeline_media.edges[idx].node;
       bot.sendMessage(chatId, data.edge_media_to_caption.edges[0].node.text);
-      if (data.is_video){
-        bot.sendVideo(
-          chatId,
-          data.display_url,
-        );
-      } else{
-        bot.sendPhoto(
-          chatId,
-          data.display_url,
-        );
-      }
+      bot.sendPhoto(
+        chatId,
+        data.display_url,
+      );
     })
   })
 });
