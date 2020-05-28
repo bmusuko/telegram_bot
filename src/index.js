@@ -156,15 +156,17 @@ bot.onText(/\/ig (.*)/, (msg, match) => {
     axios.get(`https://www.instagram.com/graphql/query/?query_hash=472f257a40c653c64c666ce877d59d2b&variables={"id":"${userID}","first":${totalPost},"after":""}`)
     .then((result)=>{
       const idx = Math.floor(Math.random() * result.data.data.user.edge_owner_to_timeline_media.edges.length);
-      if (result.data.data.user.edge_owner_to_timeline_media.edges[idx].node.is_video){
+      const data = result.data.data.user.edge_owner_to_timeline_media.edges[idx].node;
+      bot.sendMessage(chatId, data.edge_media_to_caption.edges[0].node.text);
+      if (data.is_video){
         bot.sendVideo(
           chatId,
-          result.data.data.user.edge_owner_to_timeline_media.edges[idx].node.display_url,
+          data.display_url,
         );
       } else{
         bot.sendPhoto(
           chatId,
-          result.data.data.user.edge_owner_to_timeline_media.edges[idx].node.display_url,
+          data.display_url,
         );
       }
     })
