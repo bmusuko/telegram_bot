@@ -150,7 +150,7 @@ bot.onText(/\/ig (.*)/, (msg, match) => {
   const username = match[1];
   const seed = Math.ceil(Math.random() * 100000);
   console.log(username);
-  axios.get(`https://www.instagram.com/${username}/?__a=1&seed=${seed}`)
+  axios.get(`https://www.instagram.com/${username}/?__a=1`)
   .then((result)=>{
     const userID = result.data.graphql.user.id
     const totalPost = result.data.graphql.user.edge_owner_to_timeline_media.count
@@ -158,12 +158,25 @@ bot.onText(/\/ig (.*)/, (msg, match) => {
     .then((result)=>{
       const idx = Math.floor(Math.random() * result.data.data.user.edge_owner_to_timeline_media.edges.length);
       const data = result.data.data.user.edge_owner_to_timeline_media.edges[idx].node;
-      bot.sendMessage(chatId, data.edge_media_to_caption.edges[0].node.text);
-      bot.sendPhoto(
+      if(data.edge_media_to_caption.edges.length >0){
+        bot.sendMessage(chatId, data.edge_media_to_caption.edges[0].node.text);
+      }
+        bot.sendPhoto(
         chatId,
         data.display_url,
       );
     })
-  })
+  });
+  // axios.get(`https://www.instagram.com/${username}/?__a=1`)
+  // .then((result)=>{
+  //   const idx = Math.floor(Math.random() * result.data.graphql.user.edge_owner_to_timeline_media.edges.length);
+  //   const data = result.data.graphql.user.edge_owner_to_timeline_media.edges[idx].node;
+  //   if(data.edge_media_to_caption.edges.length >0){
+  //     bot.sendMessage(chatId, data.edge_media_to_caption.edges[0].node.text);
+  //   }
+  //   bot.sendPhoto(
+  //     chatId,
+  //     data.display_url,
+  //   );
+  // });
 });
-
