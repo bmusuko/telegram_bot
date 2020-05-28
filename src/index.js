@@ -1,13 +1,14 @@
 const TelegramBot = require('node-telegram-bot-api');
 const appRoot = require('app-root-path');
+require('dotenv').config();
 
 const token = process.env.Telegram_token;
 const bot = new TelegramBot(token, { polling: true });
-// const axios = require('axios');
 const fs = require('fs');
 const txtomp3 = require('text-to-mp3');
+const axios = require('axios');
 
-require('dotenv').config();
+
 
 bot.onText(/\/help/, (msg) => {
   const chatId = msg.chat.id;
@@ -130,4 +131,43 @@ bot.onText(/\/speaklist/, (msg) => {
   );
 });
 
-// bot.on('polling_error', (err) => console.log(err));
+bot.onText(/\/igp (.*)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const username = match[1];
+  const seed = Math.ceil(Math.random() * 100000);
+  console.log(username);
+  axios.get(`https://www.instagram.com/${username}/?__a=1&seed=${seed}`)
+  .then((result)=>{
+    bot.sendPhoto(
+      chatId,
+      result.data.graphql.user.profile_pic_url_hd,
+    );
+  })
+});
+
+bot.onText(/\/ig (.*)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const username = match[1];
+  const seed = Math.ceil(Math.random() * 100000);
+  axios.get(`https://www.instagram.com/${username}/?__a=1&seed=${seed}`)
+  .then((result)=>{
+    const userID = result.data.graphql.user.id
+    const totalPost = result.data.graphql.user.edge_owner_to_timeline_media.count
+    axios.get(`https://www.instagram.com/graphql/query/?query_hash=472f257a40c653c64c666ce877d59d2b&variables={"id":"${userID}","first":${totalPost},"after":""}`)
+    .then((result)=>{
+      const idx = Math.floor(Math.random() * result.data.data.user.edge_owner_to_timeline_media.edges.length);
+      if (result.data.data.user.edge_owner_to_timeline_media.edges[idx].node.is_video){
+        bot.sendVideo(
+          chatId,
+          result.data.data.user.edge_owner_to_timeline_media.edges[idx].node.display_url,
+        );
+      } else{
+        bot.sendPhoto(
+          chatId,
+          result.data.data.user.edge_owner_to_timeline_media.edges[idx].node.display_url,
+        );
+      }
+    })
+  })
+});
+
