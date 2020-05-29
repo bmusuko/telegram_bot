@@ -18,3 +18,5 @@
 - /covid [country] - get summary covid in that country
 - /speak [msg] - send audio file with your message
 - /speaklist - send list of audio code country
+- /igp [username] - get ig profile picture
+- /ig [username] - get random instagram post picture (works on public instagram only)
