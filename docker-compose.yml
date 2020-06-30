@@ -5,5 +5,6 @@ services:
     image: bmusuko/tyur_bot:latest
     restart: always
     environment:
-        - Telegram_token=${Telegram_token}
-
+      - Telegram_token=${Telegram_token}
+      - IG_USERNAME=${IG_USERNAME}
+      - IG_PASSWORD=${IG_PASSWORD}

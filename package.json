@@ -9,17 +9,6 @@
     "lint": "eslint src/**/*.js --fix",
     "format": "prettier --write src/**/*.js"
   },
-  "lint-staged": {
-    "src/**/*.js": [
-      "eslint --fix",
-      "prettier-eslint --write"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/bmusuko/telegram_bot.git"
@@ -38,6 +27,7 @@
     "axios": "^0.19.0",
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
+    "instagram-private-api": "^1.40.1",
     "node-telegram-bot-api": "^0.40.0",
     "nodemon": "^2.0.2",
     "randomstring": "^1.1.5",
