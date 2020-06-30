@@ -140,64 +140,36 @@ bot.onText(/\/speaklist/, (msg) => {
   );
 });
 
-// bot.onText(/\/igp (.*)/, (msg, match) => {
-//   const chatId = msg.chat.id;
-//   const username = match[1];
-//   const seed = Math.ceil(Math.random() * 100000);
-//   console.log(username);
-//   axios
-//     .get(`https://www.instagram.com/${username}/?__a=1&seed=${seed}`)
-//     .then((result) => {
-//       console.log(result.data);
-//       bot.sendPhoto(chatId, result.data.graphql.user.profile_pic_url_hd);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// });
-
-bot.onText(/\/ig (.*)/, async (msg, match) => {
-  console.log;
+bot.onText(/\/igp (.*)/, (msg, match) => {
   const chatId = msg.chat.id;
   const username = match[1];
-  ig.state.generateDevice(process.env.IG_USERNAME);
-  await ig.simulate.preLoginFlow();
-  await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
-  // console.log(loggedInUser);
-  // The same as preLoginFlow()
-  // Optionally wrap it to process.nextTick so we dont need to wait ending of this bunch of requests
-  process.nextTick(async () => await ig.simulate.postLoginFlow());
+  const seed = Math.ceil(Math.random() * 100000);
+  axios
+    .get(`http://bmusuko.ninja:8081/igp?username=${username}&seed=${seed}`)
+    .then((result) => {
+      console.log(result.data);
+      bot.sendPhoto(chatId, result.data.src);
+    })
+    .catch((err) => {
+      bot.sendMessage(chatId, `can't find user`);
+    });
+});
 
-  try {
-    const id = await ig.user.getIdByUsername(username);
-
-    // Create UserFeed instance to get loggedInUser's posts
-    const userFeed = ig.feed.user(id);
-    const feed = await userFeed.items();
-    const post = feed.random();
-    const is_private = post["user"]["is_private"];
-
-    if (is_private) {
-      bot.sendMessage(chatId, "private account");
-    } else {
-      const caption = post["caption"]["text"] || "no caption";
-      const media_type = post["media_type"]; // 1 photo, 2 video
-      bot.sendMessage(chatId, caption);
-      if (media_type === 1) {
-        const photo_url = post["image_versions2"]["candidates"].random()["url"];
-        bot.sendPhoto(chatId, photo_url);
-      } else if (media_type === 2) {
-        const video_url = post["video_versions"].random()["url"];
-        bot.sendVideo(chatId, video_url);
+bot.onText(/\/ig (.*)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const username = match[1];
+  const seed = Math.ceil(Math.random() * 100000);
+  axios
+    .get(`http://bmusuko.ninja:8081/ig?username=${username}&seed=${seed}`)
+    .then((result) => {
+      bot.sendMessage(chatId, result.data.caption);
+      if (result.data.video) {
+        bot.sendVideo(chatId, result.data.src);
       } else {
-        bot.sendMessage(chatId, "unknown media type");
+        bot.sendPhoto(chatId, result.data.src);
       }
-    }
-  } catch (e) {
-    if (e.name === "IgPrivateUserError") {
-      bot.sendMessage(chatId, "private account");
-    } else {
-      bot.sendMessage(chatId, e.message);
-    }
-  }
+    })
+    .catch((err) => {
+      bot.sendMessage(chatId, `can't find user or private`);
+    });
 });
