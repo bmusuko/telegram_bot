@@ -10,6 +10,7 @@ const bot = new TelegramBot(token, { polling: true });
 const fs = require("fs");
 const txtomp3 = require("text-to-mp3");
 const axios = require("axios");
+const baseApi = process.env.API_URL;
 
 Array.prototype.random = function() {
   return this[Math.floor(Math.random() * this.length)];
@@ -71,7 +72,6 @@ bot.onText(/\/quote (.*)/, (msg, match) => {
   let resp = match[1];
   const whitespaces = [];
   for (let i = 0; i < resp.length; i += 1) {
-    // console.log(i)
     if (resp.charAt(i) === " ") {
       whitespaces.push(i);
     }
@@ -145,9 +145,8 @@ bot.onText(/\/igp (.*)/, (msg, match) => {
   const username = match[1];
   const seed = Math.ceil(Math.random() * 100000);
   axios
-    .get(`http://bmusuko.ninja:8081/igp?username=${username}&seed=${seed}`)
+    .get(`${baseApi}igp?username=${username}&seed=${seed}`)
     .then((result) => {
-      console.log(result.data);
       bot.sendPhoto(chatId, result.data.src);
     })
     .catch((err) => {
@@ -160,7 +159,7 @@ bot.onText(/\/ig (.*)/, async (msg, match) => {
   const username = match[1];
   const seed = Math.ceil(Math.random() * 100000);
   axios
-    .get(`http://bmusuko.ninja:8081/ig?username=${username}&seed=${seed}`)
+    .get(`${baseApi}ig?username=${username}&seed=${seed}`)
     .then((result) => {
       bot.sendMessage(chatId, result.data.caption);
       if (result.data.video) {

@@ -6,5 +6,4 @@ services:
     restart: always
     environment:
       - Telegram_token=${Telegram_token}
-      - IG_USERNAME=${IG_USERNAME}
-      - IG_PASSWORD=${IG_PASSWORD}
+      - API_URL=${API_URL}
