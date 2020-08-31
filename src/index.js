@@ -1,16 +1,21 @@
 const TelegramBot = require("node-telegram-bot-api");
 const appRoot = require("app-root-path");
-const IgApiClient = require("instagram-private-api").IgApiClient;
-const ig = new IgApiClient();
-
+const path = require("path");
 require("dotenv").config();
+const http = require("http");
 
+const uuidv4 = require("uuid").v4;
 const token = process.env.Telegram_token;
 const bot = new TelegramBot(token, { polling: true });
 const fs = require("fs");
 const txtomp3 = require("text-to-mp3");
 const axios = require("axios");
 const baseApi = process.env.API_URL;
+const { Storage } = require("@google-cloud/storage");
+const storage = new Storage({
+  keyFileName: path.join(__dirname, "../cred.json"),
+  projectId: "celtic-vent-271705",
+});
 
 Array.prototype.random = function() {
   return this[Math.floor(Math.random() * this.length)];
@@ -45,6 +50,7 @@ bot.onText(/\/spam (.*)/, (msg, match) => {
 bot.onText(/\/echo (.*)/, (msg, match) => {
   const chatId = msg.chat.id;
   const resp = match[1];
+
   bot.sendMessage(chatId, resp);
 });
 
@@ -172,3 +178,48 @@ bot.onText(/\/ig (.*)/, async (msg, match) => {
       bot.sendMessage(chatId, `can't find user or private`);
     });
 });
+
+bot.on("message", async (msg) => {
+  const chatId = msg.chat.id;
+  console.log(msg);
+  if (msg.caption && msg.caption.toLowerCase().includes("save")) {
+    let file_id;
+    if (msg.photo && msg.photo[0]) {
+      file_id = msg.photo[0].file_id;
+    } else if (msg.document) {
+      file_id = msg.document.file_id;
+    } else {
+      return;
+    }
+    const link = await bot.getFileLink(file_id);
+    const ext = link.split(".").pop();
+    const location = await downloadFile(link, ext);
+    const resp = await storage.bucket("tyur-bot").upload(location);
+    // fs.unlinkSync(location);
+    bot.sendMessage(chatId, resp[1].mediaLink);
+  } else if (msg.sticker) {
+    if (
+      msg.sticker.set_name === "NickWallowPig" &&
+      msg.sticker.emoji === "👍"
+    ) {
+      const opt = {
+        reply_to_message_id: msg.message_id,
+      };
+      bot.sendMessage(chatId, "tai", opt);
+    }
+  }
+});
+
+async function downloadFile(url, ext) {
+  const location = path.join(__dirname, "file", `${uuidv4()}.${ext}`);
+  const writer = fs.createWriteStream(location);
+
+  const response = await axios({
+    url,
+    method: "GET",
+    responseType: "stream",
+  });
+
+  await response.data.pipe(writer);
+  return location;
+}
