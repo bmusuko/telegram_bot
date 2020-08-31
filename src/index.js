@@ -205,7 +205,14 @@ bot.on("message", async (msg) => {
       const opt = {
         reply_to_message_id: msg.message_id,
       };
-      bot.sendMessage(chatId, "tai", opt);
+      const subreddit = "ladybonersgw";
+      const resp = await axios.get(
+        `https://www.reddit.com/r/${subreddit}/hot.json`
+      );
+      const child = resp.data.data.children;
+      child.shift();
+      const selected = child.random();
+      bot.sendPhoto(chatId, selected.data.url, opt);
     }
   }
 });
