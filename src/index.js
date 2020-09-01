@@ -198,22 +198,22 @@ bot.on("message", async (msg) => {
     // fs.unlinkSync(location);
     bot.sendMessage(chatId, resp[1].mediaLink);
   } else if (msg.sticker) {
-    if (
-      msg.sticker.set_name === "NickWallowPig" &&
-      msg.sticker.emoji === "👍"
-    ) {
-      const opt = {
-        reply_to_message_id: msg.message_id,
-      };
-      const subreddit = "ladybonersgw";
-      const resp = await axios.get(
-        `https://www.reddit.com/r/${subreddit}/hot.json`
-      );
-      const child = resp.data.data.children;
-      child.shift();
-      const selected = child.random();
-      bot.sendPhoto(chatId, selected.data.url, opt);
-    }
+    // if (
+    //   msg.sticker.set_name === "NickWallowPig" &&
+    //   msg.sticker.emoji === "👍"
+    // ) {
+    //   const opt = {
+    //     reply_to_message_id: msg.message_id,
+    //   };
+    //   const subreddit = "ladybonersgw";
+    //   const resp = await axios.get(
+    //     `https://www.reddit.com/r/${subreddit}/hot.json`
+    //   );
+    //   const child = resp.data.data.children;
+    //   child.shift();
+    //   const selected = child.random();
+    //   bot.sendPhoto(chatId, selected.data.url, opt);
+    // }
   }
 });
 
