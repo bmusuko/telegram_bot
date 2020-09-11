@@ -179,43 +179,78 @@ bot.onText(/\/ig (.*)/, async (msg, match) => {
     });
 });
 
-bot.on("message", async (msg) => {
-  const chatId = msg.chat.id;
-  console.log(msg);
-  if (msg.caption && msg.caption.toLowerCase().includes("save")) {
-    let file_id;
-    if (msg.photo && msg.photo[0]) {
-      file_id = msg.photo[0].file_id;
-    } else if (msg.document) {
-      file_id = msg.document.file_id;
-    } else {
-      return;
-    }
-    const link = await bot.getFileLink(file_id);
-    const ext = link.split(".").pop();
-    const location = await downloadFile(link, ext);
-    const resp = await storage.bucket("tyur-bot").upload(location);
-    // fs.unlinkSync(location);
-    bot.sendMessage(chatId, resp[1].mediaLink);
-  } else if (msg.sticker) {
-    // if (
-    //   msg.sticker.set_name === "NickWallowPig" &&
-    //   msg.sticker.emoji === "👍"
-    // ) {
-    //   const opt = {
-    //     reply_to_message_id: msg.message_id,
-    //   };
-    //   const subreddit = "ladybonersgw";
-    //   const resp = await axios.get(
-    //     `https://www.reddit.com/r/${subreddit}/hot.json`
-    //   );
-    //   const child = resp.data.data.children;
-    //   child.shift();
-    //   const selected = child.random();
-    //   bot.sendPhoto(chatId, selected.data.url, opt);
-    // }
+bot.on("inline_query", async (msg) => {
+  console;
+  if (msg.query.trim().length > 2) {
+    const query = encodeURIComponent(msg.query.trim());
+
+    const url = `https://api.jikan.moe/v3/search/anime?q=${query}&page=1&limit=5`;
+    const response = await axios.get(url);
+    let resp_arr = response.data.results;
+    let send = [];
+    resp_arr.map((res) => {
+      send.push({
+        type: "article",
+        id: res.mal_id,
+        photo_file_id: res.mal_id,
+        description: res.synopsis,
+        thumb_url: res.image_url,
+        title: res.title,
+        input_message_content: {
+          message_text: `<b>${res.title} (${res.start_date.substring(
+            0,
+            4
+          )}) • ${res.type}</b>\n⭐️ ${res.score}\n\nEpisode(s) : <b>${
+            res.episodes
+          }</b>\n\nSynosis:\n${res.synopsis}\n\n<a href="${
+            res.image_url
+          }">&#8204;</a>`,
+          parse_mode: "HTML",
+        },
+      });
+    });
+    console.log(resp_arr);
+    bot.answerInlineQuery(msg.id, send);
   }
 });
+
+// bot.on("message", async (msg) => {
+//   const chatId = msg.chat.id;
+//   console.log(msg);
+//   if (msg.caption && msg.caption.toLowerCase().includes("save")) {
+//     let file_id;
+//     if (msg.photo && msg.photo[0]) {
+//       file_id = msg.photo[0].file_id;
+//     } else if (msg.document) {
+//       file_id = msg.document.file_id;
+//     } else {
+//       return;
+//     }
+//     const link = await bot.getFileLink(file_id);
+//     const ext = link.split(".").pop();
+//     const location = await downloadFile(link, ext);
+//     const resp = await storage.bucket("tyur-bot").upload(location);
+//     // fs.unlinkSync(location);
+//     bot.sendMessage(chatId, resp[1].mediaLink);
+//   } else if (msg.sticker) {
+//     // if (
+//     //   msg.sticker.set_name === "NickWallowPig" &&
+//     //   msg.sticker.emoji === "👍"
+//     // ) {
+//     //   const opt = {
+//     //     reply_to_message_id: msg.message_id,
+//     //   };
+//     //   const subreddit = "ladybonersgw";
+//     //   const resp = await axios.get(
+//     //     `https://www.reddit.com/r/${subreddit}/hot.json`
+//     //   );
+//     //   const child = resp.data.data.children;
+//     //   child.shift();
+//     //   const selected = child.random();
+//     //   bot.sendPhoto(chatId, selected.data.url, opt);
+//     // }
+//   }
+// });
 
 async function downloadFile(url, ext) {
   const location = path.join(__dirname, "file", `${uuidv4()}.${ext}`);
