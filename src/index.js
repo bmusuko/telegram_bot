@@ -3,6 +3,9 @@ const appRoot = require("app-root-path");
 const path = require("path");
 require("dotenv").config();
 const http = require("http");
+const amqp = require("amqplib/callback_api");
+const express = require("express");
+const app = express();
 
 const uuidv4 = require("uuid").v4;
 const token = process.env.Telegram_token;
@@ -214,6 +217,10 @@ bot.on("inline_query", async (msg) => {
   }
 });
 
+function sendScheduledMessage(chatId, message) {
+  bot.sendMessage(chatId, message);
+}
+
 // bot.on("message", async (msg) => {
 //   const chatId = msg.chat.id;
 //   console.log(msg);
@@ -252,6 +259,95 @@ bot.on("inline_query", async (msg) => {
 //   }
 // });
 
+bot.onText(/\/remind (.*)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const input = match[1];
+  const lastIndex = input.lastIndexOf(" ");
+  const text = input.substring(0, lastIndex);
+  let rep = input.substring(lastIndex + 1, input.length - 1);
+  const mark = input.substring(input.length - 1).toUpperCase();
+  let time = 0;
+  console.log("111113", text, chatId, rep);
+
+  if (isNumeric(rep)) {
+    console.log("hi");
+    rep = parseInt(rep);
+  } else {
+    console.log("ho");
+    bot.sendMessage(chatId, "wrong format\nexample:/remind hello boi 8m");
+    return;
+  }
+  console.log("111112", text, chatId, time);
+
+  if (mark === "M") {
+    time = 1000 * 60 * rep;
+  } else if (mark === "S") {
+    time = 1000 * rep;
+  } else if (mark === "H") {
+    time = 1000 * 60 * 60 * rep;
+  } else if (mark === "D") {
+    time = 1000 * 60 * 60 * 24 * rep;
+  } else {
+    bot.sendMessage(chatId, "wrong format\nvalid time S,M,H,D");
+  }
+  console.log("111111", text, chatId, time);
+  scheduleMessage(
+    "send_with_delay_new",
+    "delay_notification",
+    JSON.stringify({
+      message: text,
+      chat_id: chatId,
+    }),
+    time
+  );
+
+  bot.sendMessage(chatId, "OK");
+});
+
+function isNumeric(value) {
+  return /^-?\d+$/.test(value);
+}
+
+function scheduleMessage(exchange, queue, params, delayInMilliSeconds) {
+  try {
+    amqp.connect(
+      `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}`,
+      function(error0, connection) {
+        if (error0) {
+          throw error0;
+        }
+        connection.createChannel(function(error1, channel) {
+          if (error1) {
+            throw error1;
+          }
+
+          channel.assertExchange(exchange, "x-delayed-message", {
+            durable: true,
+            arguments: {
+              "x-delayed-type": "direct",
+            },
+          });
+
+          channel.bindQueue(queue, exchange, queue);
+
+          channel.publish(exchange, queue, new Buffer.from(params), {
+            headers: {
+              "x-delay": delayInMilliSeconds,
+            },
+          });
+
+          console.log(" [x] Sent %s", params);
+        });
+        setTimeout(function() {
+          connection.close();
+        }, 500);
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function downloadFile(url, ext) {
   const location = path.join(__dirname, "file", `${uuidv4()}.${ext}`);
   const writer = fs.createWriteStream(location);
@@ -265,3 +361,18 @@ async function downloadFile(url, ext) {
   await response.data.pipe(writer);
   return location;
 }
+
+const port = 8088;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.post("/callback", (req, res) => {
+  const { chat_id, message } = req.body;
+  console.log(chat_id, message);
+  sendScheduledMessage(chat_id, message);
+  res.send("OK");
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
