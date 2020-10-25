@@ -6,6 +6,7 @@ const http = require("http");
 const amqp = require("amqplib/callback_api");
 const express = require("express");
 const app = express();
+const moment = require("moment");
 
 const uuidv4 = require("uuid").v4;
 const token = process.env.Telegram_token;
@@ -267,7 +268,6 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
   let rep = input.substring(lastIndex + 1, input.length - 1);
   const mark = input.substring(input.length - 1).toUpperCase();
   let time = 0;
-  console.log("111113", text, chatId, rep);
 
   if (isNumeric(rep)) {
     console.log("hi");
@@ -277,7 +277,6 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
     bot.sendMessage(chatId, "wrong format\nexample:/remind hello boi 8m");
     return;
   }
-  console.log("111112", text, chatId, time);
 
   if (mark === "M") {
     time = 1000 * 60 * rep;
@@ -290,7 +289,6 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
   } else {
     bot.sendMessage(chatId, "wrong format\nvalid time S,M,H,D");
   }
-  console.log("111111", text, chatId, time);
   scheduleMessage(
     "send_with_delay_new",
     "delay_notification",
@@ -301,7 +299,12 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
     time
   );
 
-  bot.sendMessage(chatId, "OK");
+  const responseDate = moment()
+    .add(parseInt(time / 1000), "seconds")
+    .format("MMMM Do YYYY, h:mm:ss a");
+  let response = `I will remind you "${text}" on ${responseDate}`;
+
+  bot.sendMessage(chatId, response);
 });
 
 function isNumeric(value) {
