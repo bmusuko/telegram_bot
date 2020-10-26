@@ -39,7 +39,8 @@ function receiveMessage() {
 
               const message = payload.message;
               const chatId = payload.chat_id;
-              sendScheduledMessage(chatId, message);
+              const messageId = payload.message_id;
+              sendScheduledMessage(chatId, message, messageId);
               console.log("Message Received with delay", message, chatId);
             },
             {
@@ -54,11 +55,12 @@ function receiveMessage() {
   }
 }
 
-function sendScheduledMessage(chatId, message) {
+function sendScheduledMessage(chatId, message, messageId) {
   const url = "http://localhost:8088/callback";
   axios.post(url, {
     chat_id: chatId,
     message: message,
+    message_id: messageId,
   });
 }
 

@@ -2,7 +2,6 @@ const TelegramBot = require("node-telegram-bot-api");
 const appRoot = require("app-root-path");
 const path = require("path");
 require("dotenv").config();
-const http = require("http");
 const amqp = require("amqplib/callback_api");
 const express = require("express");
 const app = express();
@@ -15,10 +14,32 @@ const fs = require("fs");
 const txtomp3 = require("text-to-mp3");
 const axios = require("axios");
 const baseApi = process.env.API_URL;
-const { Storage } = require("@google-cloud/storage");
-const storage = new Storage({
-  keyFileName: path.join(__dirname, "../cred.json"),
-  projectId: "celtic-vent-271705",
+// const { Storage } = require("@google-cloud/storage");
+// const storage = new Storage({
+//   keyFileName: path.join(__dirname, "../cred.json"),
+//   projectId: "celtic-vent-271705",
+// });
+
+const port = 8088;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.post("/callback", (req, res) => {
+  const { chat_id, message, message_id } = req.body;
+  console.log(chat_id, message, message_id);
+  const opt = {
+    reply_to_message_id: message_id,
+  };
+  if (message_id) {
+    bot.sendMessage(chat_id, message, opt);
+  } else {
+    bot.sendMessage(chat_id, message);
+  }
+  res.send("OK");
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
 });
 
 Array.prototype.random = function() {
@@ -184,7 +205,6 @@ bot.onText(/\/ig (.*)/, async (msg, match) => {
 });
 
 bot.on("inline_query", async (msg) => {
-  console;
   if (msg.query.trim().length > 2) {
     const query = encodeURIComponent(msg.query.trim());
 
@@ -294,6 +314,7 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
     JSON.stringify({
       message: text,
       chat_id: chatId,
+      message_id: msg.message_id,
     }),
     time
   );
@@ -363,18 +384,3 @@ async function downloadFile(url, ext) {
   await response.data.pipe(writer);
   return location;
 }
-
-const port = 8088;
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.post("/callback", (req, res) => {
-  const { chat_id, message } = req.body;
-  console.log(chat_id, message);
-  sendScheduledMessage(chat_id, message);
-  res.send("OK");
-});
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
