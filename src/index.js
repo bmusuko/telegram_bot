@@ -270,10 +270,8 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
   let time = 0;
 
   if (isNumeric(rep)) {
-    console.log("hi");
     rep = parseInt(rep);
   } else {
-    console.log("ho");
     bot.sendMessage(chatId, "wrong format\nexample:/remind hello boi 8m");
     return;
   }
@@ -288,6 +286,7 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
     time = 1000 * 60 * 60 * 24 * rep;
   } else {
     bot.sendMessage(chatId, "wrong format\nvalid time S,M,H,D");
+    return;
   }
   scheduleMessage(
     "send_with_delay_new",
