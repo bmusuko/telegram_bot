@@ -238,10 +238,6 @@ bot.on("inline_query", async (msg) => {
   }
 });
 
-function sendScheduledMessage(chatId, message) {
-  bot.sendMessage(chatId, message);
-}
-
 // bot.on("message", async (msg) => {
 //   const chatId = msg.chat.id;
 //   console.log(msg);
@@ -308,6 +304,12 @@ bot.onText(/\/remind (.*)/, (msg, match) => {
     bot.sendMessage(chatId, "wrong format\nvalid time S,M,H,D");
     return;
   }
+
+  if (!(time > 0 && time <= 1000 * 60 * 60 * 24 * 30)) {
+    bot.sendMessage(chatId, "Invalid time\nMaximum 30 Day");
+    return;
+  }
+
   scheduleMessage(
     "send_with_delay_new",
     "delay_notification",
