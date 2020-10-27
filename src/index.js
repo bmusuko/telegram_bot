@@ -27,14 +27,14 @@ app.use(express.urlencoded({ extended: true }));
 app.post("/callback", (req, res) => {
   const { chat_id, message, message_id } = req.body;
   console.log(chat_id, message, message_id);
-  const opt = {
-    reply_to_message_id: message_id,
-  };
-  if (message_id) {
-    bot.sendMessage(chat_id, message, opt);
-  } else {
-    bot.sendMessage(chat_id, message);
-  }
+  // const opt = {
+  //   reply_to_message_id: message_id,
+  // };
+  // if (message_id) {
+  //   bot.sendMessage(chat_id, message, opt);
+  // } else {
+  bot.sendMessage(chat_id, message);
+  // }
   res.send("OK");
 });
 
