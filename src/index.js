@@ -253,6 +253,17 @@ bot.on("inline_query", async (msg) => {
   }
 });
 
+bot.onText(/\/fake/, (msg) => {
+  const chatId = msg.chat.id;
+  const seed = Math.ceil(Math.random() * 100000);
+
+  // }
+  bot.sendPhoto(
+    chatId,
+    `https://thispersondoesnotexist.com/image?random_seed=${seed}`
+  );
+});
+
 // bot.on("message", async (msg) => {
 //   const chatId = msg.chat.id;
 //   console.log(msg);
