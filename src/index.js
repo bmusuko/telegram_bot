@@ -185,6 +185,21 @@ bot.onText(/\/igp (.*)/, (msg, match) => {
     });
 });
 
+bot.onText(/\/dimg (.*)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const search = match[1];
+  const seed = Math.ceil(Math.random() * 100000);
+  axios
+    .get(`${baseApi}ddg?search=${search}&seed=${seed}`)
+    .then((result) => {
+      bot.sendMessage(chatId, result.data.title);
+      bot.sendPhoto(chatId, result.data.src);
+    })
+    .catch((err) => {
+      bot.sendMessage(chatId, `Can't find your request`);
+    });
+});
+
 bot.onText(/\/ig (.*)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const username = match[1];
