@@ -19,7 +19,7 @@ const storage = new Storage({
   keyFileName: path.join(__dirname, "../cred.json"),
   projectId: "celtic-vent-271705",
 });
-
+const request = require("request");
 const port = 8088;
 
 app.use(express.json());
@@ -272,15 +272,26 @@ bot.onText(/\/fake/, (msg) => {
 
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
-  console.log(msg);
-  if (msg.caption && msg.caption.toLowerCase().includes("save")) {
+  if (
+    (msg.caption && msg.caption.toLowerCase().includes("save")) ||
+    (msg.reply_to_message && msg.text.toLowerCase().includes("save"))
+  ) {
+    console.log(msg.reply_to_message);
+
     let file_id;
     let mime_type;
     if (msg.photo && msg.photo[0]) {
-      file_id = msg.photo[0].file_id;
+      file_id = msg.photo[msg.photo.length - 1].file_id;
     } else if (msg.document) {
       file_id = msg.document.file_id;
       mime_type = msg.document.mime_type;
+    } else if (msg.reply_to_message.photo && msg.reply_to_message.photo[0]) {
+      file_id =
+        msg.reply_to_message.photo[msg.reply_to_message.photo.length - 1]
+          .file_id;
+    } else if (msg.reply_to_message.document) {
+      file_id = msg.reply_to_message.document.file_id;
+      mime_type = msg.reply_to_message.document.mime_type;
     } else {
       return;
     }
@@ -297,14 +308,15 @@ bot.on("message", async (msg) => {
     } else if (ext === "gif") {
       mime_type = "image/gif";
     }
-
+    if (!mime_type) {
+      bot.sendMessage(chatId, `invalid type`);
+      return;
+    }
     const fileName = `${uuidv4()}.${ext}`;
-
-    const location = await downloadFile(link, fileName);
-
     const file = storage.bucket("tyur-bot").file(`file/${fileName}`);
 
-    fs.createReadStream(location)
+    request
+      .get(link)
       .pipe(
         file.createWriteStream({
           metadata: {
@@ -312,20 +324,16 @@ bot.on("message", async (msg) => {
           },
         })
       )
-      .on("error", function(err) {
-        console.log(err);
-        bot.sendMessage(chatId, "unknown error :(");
+      .on("error", (err) => {
+        console.error(`error occurred`);
       })
-      .on("finish", function() {
+      .on("finish", () => {
         bot.sendMessage(
           chatId,
           `https://storage.googleapis.com/tyur-bot/file/${fileName}`
         );
+        console.info(`success`);
       });
-
-    // const resp = await storage.bucket("tyur-bot").upload(location);
-    // fs.unlinkSync(location);
-    // bot.sendMessage(chatId, resp[1].mediaLink);
   } else if (msg.sticker) {
     // if (
     //   msg.sticker.set_name === "NickWallowPig" &&
