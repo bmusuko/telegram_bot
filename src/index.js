@@ -14,11 +14,11 @@ const fs = require("fs");
 const txtomp3 = require("text-to-mp3");
 const axios = require("axios");
 const baseApi = process.env.API_URL;
-// const { Storage } = require("@google-cloud/storage");
-// const storage = new Storage({
-//   keyFileName: path.join(__dirname, "../cred.json"),
-//   projectId: "celtic-vent-271705",
-// });
+const { Storage } = require("@google-cloud/storage");
+const storage = new Storage({
+  keyFileName: path.join(__dirname, "../cred.json"),
+  projectId: "celtic-vent-271705",
+});
 
 const port = 8088;
 
@@ -270,43 +270,81 @@ bot.onText(/\/fake/, (msg) => {
   );
 });
 
-// bot.on("message", async (msg) => {
-//   const chatId = msg.chat.id;
-//   console.log(msg);
-//   if (msg.caption && msg.caption.toLowerCase().includes("save")) {
-//     let file_id;
-//     if (msg.photo && msg.photo[0]) {
-//       file_id = msg.photo[0].file_id;
-//     } else if (msg.document) {
-//       file_id = msg.document.file_id;
-//     } else {
-//       return;
-//     }
-//     const link = await bot.getFileLink(file_id);
-//     const ext = link.split(".").pop();
-//     const location = await downloadFile(link, ext);
-//     const resp = await storage.bucket("tyur-bot").upload(location);
-//     // fs.unlinkSync(location);
-//     bot.sendMessage(chatId, resp[1].mediaLink);
-//   } else if (msg.sticker) {
-//     // if (
-//     //   msg.sticker.set_name === "NickWallowPig" &&
-//     //   msg.sticker.emoji === "👍"
-//     // ) {
-//     //   const opt = {
-//     //     reply_to_message_id: msg.message_id,
-//     //   };
-//     //   const subreddit = "ladybonersgw";
-//     //   const resp = await axios.get(
-//     //     `https://www.reddit.com/r/${subreddit}/hot.json`
-//     //   );
-//     //   const child = resp.data.data.children;
-//     //   child.shift();
-//     //   const selected = child.random();
-//     //   bot.sendPhoto(chatId, selected.data.url, opt);
-//     // }
-//   }
-// });
+bot.on("message", async (msg) => {
+  const chatId = msg.chat.id;
+  console.log(msg);
+  if (msg.caption && msg.caption.toLowerCase().includes("save")) {
+    let file_id;
+    let mime_type;
+    if (msg.photo && msg.photo[0]) {
+      file_id = msg.photo[0].file_id;
+    } else if (msg.document) {
+      file_id = msg.document.file_id;
+      mime_type = msg.document.mime_type;
+    } else {
+      return;
+    }
+    const link = await bot.getFileLink(file_id);
+    const ext = link.split(".").pop();
+    if (ext === "png") {
+      mime_type = "image/png";
+    } else if (ext === "jpg" || ext === "jpeg") {
+      mime_type = "image/jpeg";
+    } else if (ext === "mp3") {
+      mime_type = "audio/mpeg";
+    } else if (ext === "mp4") {
+      mime_type = "video/mp4";
+    } else if (ext === "gif") {
+      mime_type = "image/gif";
+    }
+
+    const fileName = `${uuidv4()}.${ext}`;
+
+    const location = await downloadFile(link, fileName);
+
+    const file = storage.bucket("tyur-bot").file(`file/${fileName}`);
+
+    fs.createReadStream(location)
+      .pipe(
+        file.createWriteStream({
+          metadata: {
+            contentType: mime_type,
+          },
+        })
+      )
+      .on("error", function(err) {
+        console.log(err);
+        bot.sendMessage(chatId, "unknown error :(");
+      })
+      .on("finish", function() {
+        bot.sendMessage(
+          chatId,
+          `https://storage.googleapis.com/tyur-bot/file/${fileName}`
+        );
+      });
+
+    // const resp = await storage.bucket("tyur-bot").upload(location);
+    // fs.unlinkSync(location);
+    // bot.sendMessage(chatId, resp[1].mediaLink);
+  } else if (msg.sticker) {
+    // if (
+    //   msg.sticker.set_name === "NickWallowPig" &&
+    //   msg.sticker.emoji === "👍"
+    // ) {
+    //   const opt = {
+    //     reply_to_message_id: msg.message_id,
+    //   };
+    //   const subreddit = "ladybonersgw";
+    //   const resp = await axios.get(
+    //     `https://www.reddit.com/r/${subreddit}/hot.json`
+    //   );
+    //   const child = resp.data.data.children;
+    //   child.shift();
+    //   const selected = child.random();
+    //   bot.sendPhoto(chatId, selected.data.url, opt);
+    // }
+  }
+});
 
 bot.onText(/\/remind (.*)/, (msg, match) => {
   const chatId = msg.chat.id;
@@ -405,8 +443,8 @@ function scheduleMessage(exchange, queue, params, delayInMilliSeconds) {
   }
 }
 
-async function downloadFile(url, ext) {
-  const location = path.join(__dirname, "file", `${uuidv4()}.${ext}`);
+async function downloadFile(url, filename) {
+  const location = path.join(__dirname, "file", filename);
   const writer = fs.createWriteStream(location);
 
   const response = await axios({
