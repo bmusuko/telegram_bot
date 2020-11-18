@@ -292,7 +292,14 @@ bot.on("message", async (msg) => {
     } else if (msg.reply_to_message.document) {
       file_id = msg.reply_to_message.document.file_id;
       mime_type = msg.reply_to_message.document.mime_type;
-    } else {
+    } else if (msg.reply_to_message.video) {
+      file_id = msg.reply_to_message.video.file_id;
+      mime_type = msg.reply_to_message.video.mime_type;
+    } else if (msg.video) {
+      file_id = msg.video.file_id;
+      mime_type = msg.video.mime_type;
+    }
+    else {
       return;
     }
     const link = await bot.getFileLink(file_id);
@@ -303,8 +310,6 @@ bot.on("message", async (msg) => {
       mime_type = "image/jpeg";
     } else if (ext === "mp3") {
       mime_type = "audio/mpeg";
-    } else if (ext === "mp4") {
-      mime_type = "video/mp4";
     } else if (ext === "gif") {
       mime_type = "image/gif";
     }
