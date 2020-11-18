@@ -354,58 +354,58 @@ bot.on("message", async (msg) => {
   }
 });
 
-bot.onText(/\/remind (.*)/, (msg, match) => {
-  const chatId = msg.chat.id;
-  const input = match[1];
-  const lastIndex = input.lastIndexOf(" ");
-  const text = input.substring(0, lastIndex);
-  let rep = input.substring(lastIndex + 1, input.length - 1);
-  const mark = input.substring(input.length - 1).toUpperCase();
-  let time = 0;
+// bot.onText(/\/remind (.*)/, (msg, match) => {
+//   const chatId = msg.chat.id;
+//   const input = match[1];
+//   const lastIndex = input.lastIndexOf(" ");
+//   const text = input.substring(0, lastIndex);
+//   let rep = input.substring(lastIndex + 1, input.length - 1);
+//   const mark = input.substring(input.length - 1).toUpperCase();
+//   let time = 0;
 
-  if (isNumeric(rep)) {
-    rep = parseInt(rep);
-  } else {
-    bot.sendMessage(chatId, "wrong format\nexample:/remind hello boi 8m");
-    return;
-  }
+//   if (isNumeric(rep)) {
+//     rep = parseInt(rep);
+//   } else {
+//     bot.sendMessage(chatId, "wrong format\nexample:/remind hello boi 8m");
+//     return;
+//   }
 
-  if (mark === "M") {
-    time = 1000 * 60 * rep;
-  } else if (mark === "S") {
-    time = 1000 * rep;
-  } else if (mark === "H") {
-    time = 1000 * 60 * 60 * rep;
-  } else if (mark === "D") {
-    time = 1000 * 60 * 60 * 24 * rep;
-  } else {
-    bot.sendMessage(chatId, "wrong format\nvalid time S,M,H,D");
-    return;
-  }
+//   if (mark === "M") {
+//     time = 1000 * 60 * rep;
+//   } else if (mark === "S") {
+//     time = 1000 * rep;
+//   } else if (mark === "H") {
+//     time = 1000 * 60 * 60 * rep;
+//   } else if (mark === "D") {
+//     time = 1000 * 60 * 60 * 24 * rep;
+//   } else {
+//     bot.sendMessage(chatId, "wrong format\nvalid time S,M,H,D");
+//     return;
+//   }
 
-  if (!(time > 0 && time <= 1000 * 60 * 60 * 24 * 30)) {
-    bot.sendMessage(chatId, "Invalid time\nMaximum 30 Day");
-    return;
-  }
+//   if (!(time > 0 && time <= 1000 * 60 * 60 * 24 * 30)) {
+//     bot.sendMessage(chatId, "Invalid time\nMaximum 30 Day");
+//     return;
+//   }
 
-  scheduleMessage(
-    "send_with_delay_new",
-    "delay_notification",
-    JSON.stringify({
-      message: text,
-      chat_id: chatId,
-      message_id: msg.message_id,
-    }),
-    time
-  );
+//   scheduleMessage(
+//     "send_with_delay_new",
+//     "delay_notification",
+//     JSON.stringify({
+//       message: text,
+//       chat_id: chatId,
+//       message_id: msg.message_id,
+//     }),
+//     time
+//   );
 
-  const responseDate = moment()
-    .add(parseInt(time / 1000), "seconds")
-    .format("MMMM Do YYYY, h:mm:ss a");
-  let response = `I will remind you "${text}" on ${responseDate}`;
+//   const responseDate = moment()
+//     .add(parseInt(time / 1000), "seconds")
+//     .format("MMMM Do YYYY, h:mm:ss a");
+//   let response = `I will remind you "${text}" on ${responseDate}`;
 
-  bot.sendMessage(chatId, response);
-});
+//   bot.sendMessage(chatId, response);
+// });
 
 function isNumeric(value) {
   return /^-?\d+$/.test(value);
