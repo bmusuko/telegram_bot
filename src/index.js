@@ -214,11 +214,15 @@ bot.onText(/\/ig (.*)/, async (msg, match) => {
     .get(`${baseApi}ig?username=${username}&seed=${seed}`)
     .then((result) => {
       bot.sendMessage(chatId, result.data.caption);
-      if (result.data.video) {
-        bot.sendVideo(chatId, result.data.src);
-      } else {
-        bot.sendPhoto(chatId, result.data.src);
-      }
+      ret_json = result.data.result;
+      send = []
+      ret_json.map((res) => {
+        send.push({
+          type: res.video ? 'video' : 'photo',
+          media: res.src
+        });
+      });
+      bot.sendMediaGroup(chatId,send)
     })
     .catch((err) => {
       bot.sendMessage(chatId, `can't find user or private`);
