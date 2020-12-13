@@ -27,6 +27,7 @@
 
 ## Todo
 
-- [ ] Refactor spaghetti code
+- [ ] Refactor to typscript
+- [ ] Add logger
 - [ ] use oauth google to integrate with gmail
 - [ ] use oauth google to integrate with calendar  

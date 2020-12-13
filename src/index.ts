@@ -2,6 +2,7 @@ import TelegramBot from 'node-telegram-bot-api';
 // import appRoot from "app-root-path";
 // import path from "path";
 import dotenv from 'dotenv';
+dotenv.config();
 
 // import amqp from "amqplib/callback_api";
 // import express from "express";
@@ -24,7 +25,6 @@ const bot = new TelegramBot(token, { polling: true });
 //   projectId: "celtic-vent-271705",
 // });
 
-dotenv.config();
 
 // const port = 8088;
 // const app = express();
@@ -54,7 +54,7 @@ dotenv.config();
 //   return this[Math.floor(Math.random() * this.length)];
 // };
 
-bot.onText(/\/help/, Controller.echo(bot));
+bot.onText(/\/help/, Controller.help(bot));
 
 // bot.onText(/\/spam (.*)/, (msg, match) => {
 //   const chatId = msg.chat.id;

@@ -4,9 +4,9 @@
   "description": "telegram bot",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "worker": "nodemon src/worker.js",
+    "start": "node dist/index.js",
+    "dev": "tsnd --respawn src/index.ts",
+    "worker": "tsnd --respawn src/worker.ts",
     "lint": "eslint src/**/*.ts src/*.ts --fix",
     "format": "prettier --write src/*.ts src/**/*.ts",
     "build": "tsc -p tsconfig.json"
@@ -66,6 +66,7 @@
     "husky": "^4.2.5",
     "lint-staged": "^10.1.6",
     "prettier": "^2.2.1",
-    "prettier-eslint-cli": "^5.0.0"
+    "prettier-eslint-cli": "^5.0.0",
+    "ts-node-dev": "^1.1.1"
   }
 }
