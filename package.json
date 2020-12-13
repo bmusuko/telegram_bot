@@ -12,7 +12,9 @@
     "build": "tsc -p tsconfig.json"
   },
   "husky": {
-    "pre-commit": "yarn lint  && yarn format"
+    "hooks": {
+      "pre-commit": "yarn lint  && yarn format"
+    }
   },
   "repository": {
     "type": "git",
