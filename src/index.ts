@@ -15,6 +15,7 @@ dotenv.config();
 // import { Storage } from "@google-cloud/storage";
 // import request from "request";
 import { Controller } from './controllers';
+import { CustomError } from './Model/CustomError/';
 
 const token = process.env.Telegram_token as string;
 const bot = new TelegramBot(token, { polling: true });
@@ -24,7 +25,6 @@ const bot = new TelegramBot(token, { polling: true });
 //   keyFilename: path.join(__dirname, "../cred.json"),
 //   projectId: "celtic-vent-271705",
 // });
-
 
 // const port = 8088;
 // const app = express();
@@ -50,73 +50,30 @@ const bot = new TelegramBot(token, { polling: true });
 //   console.log(`Example app listening at http://localhost:${port}`);
 // });
 
-// Array.prototype.random = function() {
+// Array.prototype.random = function () {
 //   return this[Math.floor(Math.random() * this.length)];
 // };
 
-bot.onText(/\/help/, Controller.help(bot));
-
-// bot.onText(/\/spam (.*)/, (msg, match) => {
-//   const chatId = msg.chat.id;
-//   const input = match[1];
-//   const lastIndex = input.lastIndexOf(" ");
-//   const text = input.substring(0, lastIndex);
-//   const rep = Math.min(parseInt(input.substring(lastIndex + 1, input.length)), 10);
-//   for (let i = 0; i < rep; i += 1) {
-//     bot.sendMessage(chatId, text);
-//   }
-// });
-
 bot.onText(/\/echo (.*)/, Controller.echo(bot));
+bot.onText(/\/help/, Controller.help(bot));
+bot.onText(/\/quote (.*)/, Controller.quote(bot));
+bot.onText(/\/random/, Controller.randomImg(bot));
+bot.onText(/\/spam (.*)/, Controller.spam(bot));
 
-// bot.onText(/\/random/, (msg) => {
-//   const chatId = msg.chat.id;
-//   const seed = Math.ceil(Math.random() * 100000);
-//   // axios.get('https://picsum.photos//500/500.jpg/?blur=3'){
-
-//   // }
-//   bot.sendPhoto(
-//     chatId,
-//     `https://picsum.photos//500/500.jpg/?blur=3&random_seed=${seed}`
-//   );
-// });
+bot.on('polling_error', (error) => {
+  if (error instanceof CustomError) {
+    bot.sendMessage(error.chatId, error.message);
+  } else {
+    console.log('unknown error');
+    console.log(error);
+  }
+});
 
 // bot.onText(/\/jennie/, (msg) => {
 //   const chatId = msg.chat.id;
 //   const obj = JSON.parse(fs.readFileSync("j.json", "utf8"));
 //   const photo = obj.file[Math.floor(Math.random() * obj.file.length)];
 //   bot.sendPhoto(chatId, `${appRoot}/images/jennie/${photo}`);
-// });
-
-// bot.onText(/\/quote (.*)/, (msg, match) => {
-//   const chatId = msg.chat.id;
-//   let resp = match[1];
-//   const whitespaces = [];
-//   for (let i = 0; i < resp.length; i += 1) {
-//     if (resp.charAt(i) === " ") {
-//       whitespaces.push(i);
-//     }
-//   }
-
-//   const letterInline = 20;
-//   let offset = 1;
-//   for (let i = 0; i < whitespaces.length; i += 1) {
-//     if (whitespaces[i] > offset * letterInline) {
-//       resp = `${resp.substring(
-//         0,
-//         whitespaces[i] + offset - 1
-//       )}\\n${resp.substring(offset + whitespaces[i])}`;
-//       offset += 1;
-//     }
-//   }
-//   const seed = Math.ceil(Math.random() * 100000);
-
-//   bot.sendPhoto(
-//     chatId,
-//     `https://i.pickadummy.com/500x500?text=${encodeURI(
-//       resp
-//     )}&f=Random&random_seed=${seed}&shadow=ffffff&color=000000`
-//   );
 // });
 
 // bot.onText(/\/covid (.*)/, (msg, match) => {
