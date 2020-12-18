@@ -10,7 +10,7 @@ const quoteController = (bot: TelegramBot) => (
     throw new MatchError(chatId);
   }
   let resp = match[1];
-  const whitespaces = [];
+  const whitespaces: number[] = [];
   for (let i = 0; i < resp.length; i += 1) {
     if (resp.charAt(i) === ' ') {
       whitespaces.push(i);

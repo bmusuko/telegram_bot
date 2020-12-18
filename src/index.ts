@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 // import appRoot from "app-root-path";
-// import path from "path";
+import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -11,20 +11,19 @@ dotenv.config();
 // import uuid from "uuid";
 // import fs from "fs";
 // import axios from "axios";
-// import txtomp3 from "text-to-mp3";
-// import { Storage } from "@google-cloud/storage";
+import { Storage } from '@google-cloud/storage';
 // import request from "request";
 import { Controller } from './controllers';
 import { CustomError } from './Model/CustomError/';
 
 const token = process.env.Telegram_token as string;
 const bot = new TelegramBot(token, { polling: true });
-// const baseApi = process.env.API_URL;
+const baseApi = process.env.API_URL as string;
 
-// const storage = new Storage({
-//   keyFilename: path.join(__dirname, "../cred.json"),
-//   projectId: "celtic-vent-271705",
-// });
+const storage = new Storage({
+  keyFilename: path.join(__dirname, '../cred.json'),
+  projectId: 'celtic-vent-271705',
+});
 
 // const port = 8088;
 // const app = express();
@@ -59,6 +58,11 @@ bot.onText(/\/help/, Controller.help(bot));
 bot.onText(/\/quote (.*)/, Controller.quote(bot));
 bot.onText(/\/random/, Controller.randomImg(bot));
 bot.onText(/\/spam (.*)/, Controller.spam(bot));
+bot.onText(/\/speak (.*)/, Controller.speak(bot, storage));
+bot.onText(/\/speaklist/, Controller.speakList(bot));
+bot.onText(/\/ig (.*)/, Controller.instagramController(bot, baseApi));
+bot.onText(/\/igp (.*)/, Controller.instagramProfileController(bot, baseApi));
+bot.onText(/\/dimg (.*)/, Controller.dimgController(bot, baseApi));
 
 bot.on('polling_error', (error) => {
   if (error instanceof CustomError) {
@@ -84,90 +88,6 @@ bot.on('polling_error', (error) => {
 //     chatId,
 //     `https://covid19.mathdro.id/api/countries/${country}/og?random_seed=${seed}`
 //   );
-// });
-
-// bot.onText(/\/speak (.*)/, (msg, match) => {
-//   // argument -XX , check /speakList to get full list
-//   const chatId = msg.chat.id;
-//   let resp = match[1];
-
-//   let code = "id";
-
-//   const hypen = resp.lastIndexOf("-");
-//   if (hypen !== -1) {
-//     code = resp.substring(hypen + 1, hypen + 3);
-//     resp = resp.substring(0, hypen);
-//   }
-//   txtomp3.attributes.tl = code;
-
-//   const fileOptions = {
-//     // Explicitly specify the MIME type.
-//     contentType: "audio/mp3",
-//   };
-
-//   txtomp3.getMp3(resp).then((binaryStream) => {
-//     bot.sendVoice(chatId, binaryStream, {}, fileOptions);
-//   });
-// });
-
-// bot.onText(/\/speaklist/, (msg) => {
-//   const chatId = msg.chat.id;
-//   bot.sendMessage(
-//     chatId,
-//     "i can't give you full list, because is too long.\n go to https://www.labnol.org/code/19899-google-translate-languages#google-translate-languages to see full list"
-//   );
-// });
-
-// bot.onText(/\/igp (.*)/, (msg, match) => {
-//   const chatId = msg.chat.id;
-//   const username = match[1];
-//   const seed = Math.ceil(Math.random() * 100000);
-//   axios
-//     .get(`${baseApi}igp?username=${username}&seed=${seed}`)
-//     .then((result) => {
-//       bot.sendPhoto(chatId, result.data.src);
-//     })
-//     .catch((err) => {
-//       bot.sendMessage(chatId, `can't find user`);
-//     });
-// });
-
-// bot.onText(/\/dimg (.*)/, (msg, match) => {
-//   const chatId = msg.chat.id;
-//   const search = match[1];
-//   const seed = Math.ceil(Math.random() * 100000);
-//   axios
-//     .get(`${baseApi}ddg?search=${search}&seed=${seed}`)
-//     .then((result) => {
-//       bot.sendMessage(chatId, result.data.title);
-//       bot.sendPhoto(chatId, result.data.src);
-//     })
-//     .catch((err) => {
-//       bot.sendMessage(chatId, `Can't find your request`);
-//     });
-// });
-
-// bot.onText(/\/ig (.*)/, async (msg, match) => {
-//   const chatId = msg.chat.id;
-//   const username = match[1];
-//   const seed = Math.ceil(Math.random() * 100000);
-//   axios
-//     .get(`${baseApi}ig?username=${username}&seed=${seed}`)
-//     .then((result) => {
-//       bot.sendMessage(chatId, result.data.caption);
-//       let ret_json = result.data.result;
-//       let send: any = []
-//       ret_json.map((res) => {
-//         send.push({
-//           type: res.video ? 'video' : 'photo',
-//           media: res.src
-//         });
-//       });
-//       bot.sendMediaGroup(chatId,send)
-//     })
-//     .catch((err) => {
-//       bot.sendMessage(chatId, `can't find user or private`);
-//     });
 // });
 
 // bot.on("inline_query", async (msg) => {
@@ -265,25 +185,25 @@ bot.on('polling_error', (error) => {
 //     const fileName = `${uuidv4()}.${ext}`;
 //     const file = storage.bucket("tyur-bot").file(`file/${fileName}`);
 
-//     request
-//       .get(link)
-//       .pipe(
-//         file.createWriteStream({
-//           metadata: {
-//             contentType: mime_type,
-//           },
-//         })
-//       )
-//       .on("error", (err) => {
-//         console.error(`error occurred`);
-//       })
-//       .on("finish", () => {
-//         bot.sendMessage(
-//           chatId,
-//           `https://storage.googleapis.com/tyur-bot/file/${fileName}`
-//         );
-//         console.info(`success`);
-//       });
+// request
+//   .get(link)
+//   .pipe(
+//     file.createWriteStream({
+//       metadata: {
+//         contentType: mime_type,
+//       },
+//     })
+//   )
+//   .on("error", (err) => {
+//     console.error(`error occurred`);
+//   })
+//   .on("finish", () => {
+//     bot.sendMessage(
+//       chatId,
+//       `https://storage.googleapis.com/tyur-bot/file/${fileName}`
+//     );
+//     console.info(`success`);
+//   });
 //   } else if (msg.sticker) {
 //     // if (
 //     //   msg.sticker.set_name === "NickWallowPig" &&

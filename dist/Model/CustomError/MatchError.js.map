@@ -1,0 +1,1 @@
+{"version":3,"file":"MatchError.js","sourceRoot":"","sources":["../../../src/Model/CustomError/MatchError.ts"],"names":[],"mappings":";;;AAAA,+CAA4C;AAE5C,MAAM,UAAW,SAAQ,yBAAW;IAClC,YAAY,MAAc,EAAE,IAAY,sBAAsB;QAC5D,KAAK,CAAC,MAAM,EAAE,CAAC,CAAC,CAAC;QAEjB,MAAM,CAAC,cAAc,CAAC,IAAI,EAAE,UAAU,CAAC,SAAS,CAAC,CAAC;IACpD,CAAC;CACF;AAEQ,gCAAU"}
