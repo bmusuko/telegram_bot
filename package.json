@@ -7,8 +7,8 @@
     "start": "node dist/index.js",
     "dev": "tsnd --respawn src/index.ts",
     "worker": "tsnd --respawn src/worker.ts",
-    "lint": "eslint src/**/*.ts src/*.ts --fix",
-    "format": "prettier --write src/*.ts src/**/*.ts",
+    "lint": "eslint src/**/*.ts src/*.ts dist/**.js dist/*/**.js --fix",
+    "format": "prettier --write src/*.ts src/**/*.ts dist/**.js dist/*/**.js",
     "build": "tsc -p tsconfig.json"
   },
   "husky": {
