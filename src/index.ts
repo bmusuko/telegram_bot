@@ -8,11 +8,7 @@ dotenv.config();
 // import express from "express";
 // import moment from "moment";
 
-// import uuid from "uuid";
-// import fs from "fs";
-// import axios from "axios";
 import { Storage } from '@google-cloud/storage';
-// import request from "request";
 import { Controller } from './controllers';
 import { CustomError } from './Model/CustomError/';
 
@@ -27,7 +23,6 @@ const storage = new Storage({
 
 // const port = 8088;
 // const app = express();
-// const uuidv4 = uuid.v4;
 
 // app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
@@ -49,10 +44,6 @@ const storage = new Storage({
 //   console.log(`Example app listening at http://localhost:${port}`);
 // });
 
-// Array.prototype.random = function () {
-//   return this[Math.floor(Math.random() * this.length)];
-// };
-
 bot.onText(/\/echo (.*)/, Controller.echo(bot));
 bot.onText(/\/help/, Controller.help(bot));
 bot.onText(/\/quote (.*)/, Controller.quote(bot));
@@ -60,9 +51,13 @@ bot.onText(/\/random/, Controller.randomImg(bot));
 bot.onText(/\/spam (.*)/, Controller.spam(bot));
 bot.onText(/\/speak (.*)/, Controller.speak(bot, storage));
 bot.onText(/\/speaklist/, Controller.speakList(bot));
-bot.onText(/\/ig (.*)/, Controller.instagramController(bot, baseApi));
-bot.onText(/\/igp (.*)/, Controller.instagramProfileController(bot, baseApi));
-bot.onText(/\/dimg (.*)/, Controller.dimgController(bot, baseApi));
+bot.onText(/\/ig (.*)/, Controller.instagram(bot, baseApi));
+bot.onText(/\/igp (.*)/, Controller.instagramProfile(bot, baseApi));
+bot.onText(/\/dimg (.*)/, Controller.dimg(bot, baseApi));
+
+bot.on('inline_query', Controller.myAnimeList(bot));
+
+bot.on('message', Controller.save(bot, storage));
 
 bot.on('polling_error', (error) => {
   if (error instanceof CustomError) {
@@ -73,13 +68,6 @@ bot.on('polling_error', (error) => {
   }
 });
 
-// bot.onText(/\/jennie/, (msg) => {
-//   const chatId = msg.chat.id;
-//   const obj = JSON.parse(fs.readFileSync("j.json", "utf8"));
-//   const photo = obj.file[Math.floor(Math.random() * obj.file.length)];
-//   bot.sendPhoto(chatId, `${appRoot}/images/jennie/${photo}`);
-// });
-
 // bot.onText(/\/covid (.*)/, (msg, match) => {
 //   const chatId = msg.chat.id;
 //   const country = match[1];
@@ -88,40 +76,6 @@ bot.on('polling_error', (error) => {
 //     chatId,
 //     `https://covid19.mathdro.id/api/countries/${country}/og?random_seed=${seed}`
 //   );
-// });
-
-// bot.on("inline_query", async (msg) => {
-//   if (msg.query.trim().length > 2) {
-//     const query = encodeURIComponent(msg.query.trim());
-
-//     const url = `https://api.jikan.moe/v3/search/anime?q=${query}&page=1&limit=5`;
-//     const response = await axios.get(url);
-//     let resp_arr = response.data.results;
-//     let send = [];
-//     resp_arr.map((res) => {
-//       send.push({
-//         type: "article",
-//         id: res.mal_id,
-//         photo_file_id: res.mal_id,
-//         description: res.synopsis,
-//         thumb_url: res.image_url,
-//         title: res.title,
-//         input_message_content: {
-//           message_text: `<b>${res.title} (${res.start_date.substring(
-//             0,
-//             4
-//           )}) • ${res.type}</b>\n⭐️ ${res.score}\n\nEpisode(s) : <b>${
-//             res.episodes
-//           }</b>\n\nSynosis:\n${res.synopsis}\n\n<a href="${
-//             res.image_url
-//           }">&#8204;</a>`,
-//           parse_mode: "HTML",
-//         },
-//       });
-//     });
-//     console.log(resp_arr);
-//     bot.answerInlineQuery(msg.id, send);
-//   }
 // });
 
 // bot.onText(/\/fake/, (msg) => {
@@ -135,75 +89,6 @@ bot.on('polling_error', (error) => {
 //   );
 // });
 
-// bot.on("message", async (msg) => {
-//   const chatId = msg.chat.id;
-//   if (
-//     (msg.caption && msg.caption.toLowerCase().includes("save")) ||
-//     (msg.reply_to_message && msg.text.toLowerCase().includes("save"))
-//   ) {
-//     console.log(msg.reply_to_message);
-
-//     let file_id;
-//     let mime_type;
-//     if (msg.photo && msg.photo[0]) {
-//       file_id = msg.photo[msg.photo.length - 1].file_id;
-//     } else if (msg.document) {
-//       file_id = msg.document.file_id;
-//       mime_type = msg.document.mime_type;
-//     } else if (msg.reply_to_message.photo && msg.reply_to_message.photo[0]) {
-//       file_id =
-//         msg.reply_to_message.photo[msg.reply_to_message.photo.length - 1]
-//           .file_id;
-//     } else if (msg.reply_to_message.document) {
-//       file_id = msg.reply_to_message.document.file_id;
-//       mime_type = msg.reply_to_message.document.mime_type;
-//     } else if (msg.reply_to_message.video) {
-//       file_id = msg.reply_to_message.video.file_id;
-//       mime_type = msg.reply_to_message.video.mime_type;
-//     } else if (msg.video) {
-//       file_id = msg.video.file_id;
-//       mime_type = msg.video.mime_type;
-//     }
-//     else {
-//       return;
-//     }
-//     const link = await bot.getFileLink(file_id);
-//     const ext = link.split(".").pop();
-//     if (ext === "png") {
-//       mime_type = "image/png";
-//     } else if (ext === "jpg" || ext === "jpeg") {
-//       mime_type = "image/jpeg";
-//     } else if (ext === "mp3") {
-//       mime_type = "audio/mpeg";
-//     } else if (ext === "gif") {
-//       mime_type = "image/gif";
-//     }
-//     if (!mime_type) {
-//       bot.sendMessage(chatId, `invalid type`);
-//       return;
-//     }
-//     const fileName = `${uuidv4()}.${ext}`;
-//     const file = storage.bucket("tyur-bot").file(`file/${fileName}`);
-
-// request
-//   .get(link)
-//   .pipe(
-//     file.createWriteStream({
-//       metadata: {
-//         contentType: mime_type,
-//       },
-//     })
-//   )
-//   .on("error", (err) => {
-//     console.error(`error occurred`);
-//   })
-//   .on("finish", () => {
-//     bot.sendMessage(
-//       chatId,
-//       `https://storage.googleapis.com/tyur-bot/file/${fileName}`
-//     );
-//     console.info(`success`);
-//   });
 //   } else if (msg.sticker) {
 //     // if (
 //     //   msg.sticker.set_name === "NickWallowPig" &&
@@ -319,18 +204,4 @@ bot.on('polling_error', (error) => {
 //   } catch (error) {
 //     console.log(error);
 //   }
-// }
-
-// async function downloadFile(url: string, filename: string): Promise<string> {
-//   const location = path.join(__dirname, "file", filename);
-//   const writer = fs.createWriteStream(location);
-
-//   const response = await axios({
-//     url,
-//     method: "GET",
-//     responseType: "stream",
-//   });
-
-//   await response.data.pipe(writer);
-//   return location;
 // }

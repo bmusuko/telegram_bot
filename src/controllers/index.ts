@@ -8,6 +8,8 @@ import { speakListController } from './speakListController';
 import { instagramController } from './instagramController';
 import { instagramProfileController } from './instagramProfileController';
 import { dimgController } from './dimgController';
+import { myAnimeListController } from './myAnimeListController';
+import { saveController } from './saveController';
 
 const Controller = {
   echo: echoController,
@@ -17,9 +19,11 @@ const Controller = {
   quote: quoteController,
   speak: speakController,
   speakList: speakListController,
-  instagramController: instagramController,
-  instagramProfileController: instagramProfileController,
-  dimgController: dimgController,
+  instagram: instagramController,
+  instagramProfile: instagramProfileController,
+  dimg: dimgController,
+  myAnimeList: myAnimeListController,
+  save: saveController,
 };
 
 export { Controller };

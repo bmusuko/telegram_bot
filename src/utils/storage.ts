@@ -1,5 +1,6 @@
 import { Storage } from '@google-cloud/storage';
 const bucketName = 'tyur-bot';
+import request from 'request';
 
 const uploadByBuffer = (
   storage: Storage,
@@ -26,6 +27,33 @@ const uploadByBuffer = (
   });
 };
 
+const uploadByLink = (
+  storage: Storage,
+  link: string,
+  fileName: string,
+  mime_type: string,
+  callback: any
+) => {
+  const file = storage.bucket(bucketName).file(`file/${fileName}`);
+
+  request
+    .get(link)
+    .pipe(
+      file.createWriteStream({
+        metadata: {
+          contentType: mime_type,
+        },
+      })
+    )
+    .on('error', (err) => {
+      console.error(err, `error occurred`);
+      callback(err);
+    })
+    .on('finish', () => {
+      callback(`https://storage.googleapis.com/tyur-bot/file/${fileName}`);
+    });
+};
+
 const getMimeTypeByFileName = (filename: string): string => {
   const ext = filename.split('.').pop();
   let mime_type: string = '';
@@ -43,4 +71,4 @@ const getMimeTypeByFileName = (filename: string): string => {
   return mime_type;
 };
 
-export { uploadByBuffer };
+export { uploadByBuffer, getMimeTypeByFileName, uploadByLink };
