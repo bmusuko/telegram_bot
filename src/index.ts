@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api';
 // import appRoot from "app-root-path";
-import path from 'path';
+// import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -8,18 +8,18 @@ dotenv.config();
 // import express from "express";
 // import moment from "moment";
 
-import { Storage } from '@google-cloud/storage';
+// import { Storage } from '@google-cloud/storage';
 import { Controller } from './controllers';
 import { CustomError } from './Model/CustomError/';
 
 const token = process.env.Telegram_token as string;
 const bot = new TelegramBot(token, { polling: true });
-const baseApi = process.env.API_URL as string;
+// const baseApi = process.env.API_URL as string;
 
-const storage = new Storage({
-  keyFilename: path.join(__dirname, '../cred.json'),
-  projectId: 'celtic-vent-271705',
-});
+// const storage = new Storage({
+//   keyFilename: path.join(__dirname, '../cred.json'),
+//   projectId: 'celtic-vent-271705',
+// });
 
 // const port = 8088;
 // const app = express();
@@ -49,15 +49,15 @@ bot.onText(/\/help/, Controller.help(bot));
 bot.onText(/\/quote (.*)/, Controller.quote(bot));
 bot.onText(/\/random/, Controller.randomImg(bot));
 bot.onText(/\/spam (.*)/, Controller.spam(bot));
-bot.onText(/\/speak (.*)/, Controller.speak(bot, storage));
+// bot.onText(/\/speak (.*)/, Controller.speak(bot, storage));
 bot.onText(/\/speaklist/, Controller.speakList(bot));
-bot.onText(/\/ig (.*)/, Controller.instagram(bot, baseApi));
-bot.onText(/\/igp (.*)/, Controller.instagramProfile(bot, baseApi));
-bot.onText(/\/dimg (.*)/, Controller.dimg(bot, baseApi));
+// bot.onText(/\/ig (.*)/, Controller.instagram(bot, baseApi));
+// bot.onText(/\/igp (.*)/, Controller.instagramProfile(bot, baseApi));
+// bot.onText(/\/dimg (.*)/, Controller.dimg(bot, baseApi));
 
 bot.on('inline_query', Controller.myAnimeList(bot));
 
-bot.on('message', Controller.save(bot, storage));
+// bot.on('message', Controller.save(bot, storage));
 
 bot.on('polling_error', (error) => {
   if (error instanceof CustomError) {

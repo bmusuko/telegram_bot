@@ -45,7 +45,8 @@
     "path": "^0.12.7",
     "randomstring": "^1.1.5",
     "request": "^2.88.2",
-    "text-to-mp3": "^1.0.4"
+    "text-to-mp3": "^1.0.4",
+    "tiktok-scraper": "^1.4.7"
   },
   "devDependencies": {
     "@types/amqplib": "^0.5.16",
